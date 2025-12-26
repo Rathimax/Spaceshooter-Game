@@ -54,22 +54,29 @@
                     <div><span>P</span> Pause</div>
                 </div>
                 <div id="mobile-instructions" style="display:none;">
-                    <p>Drag your ship to move!</p>
+                    <p>Use the joystick to move and buttons to shoot!</p>
                 </div>
             </div>
             <div class="screen" id="game-over" style="display: none;"><h2>Game Over</h2><button onclick="restartGame()">Restart</button></div>
             <div class="screen" id="win-screen" style="display: none;"><h2>You Win!</h2><p>You have defeated the boss.</p><button onclick="restartGame()">Play Again</button></div>
-            <div class="screen" id="pause-screen" style="display: none;"><h2>Paused</h2><p>Press 'P' to Resume</p></div>
+            <div class="screen" id="pause-screen" style="display: none;"><h2>Paused</h2><p id="pause-message">Press 'P' to Resume</p></div>
             <div id="desktop-abilities" style="display: none;">
                 <div class="powerup" id="homing-rocket-powerup"><div class="powerup-key">🚀</div><div class="powerup-status">ROCKETS (Q)</div></div>
                 <div class="powerup" id="laser-beam-powerup"><div class="powerup-key">⚡</div><div class="powerup-status">LASER (E)</div></div>
             </div>
             <div id="touch-controls" style="display: none;">
-                <div class="powerup-touch-controls">
-                    <button id="laser-button" class="powerup-button" disabled>⚡</button>
-                    <button id="rocket-button" class="powerup-button" disabled>🚀</button>
+                <div id="joystick-container">
+                    <div id="joystick-base"></div>
+                    <div id="joystick-stick"></div>
                 </div>
-                <button id="fire-button"></button>
+                <div class="right-controls">
+                    <button id="pause-button" class="mobile-pause-button">⏸</button>
+                    <div class="powerup-touch-controls">
+                        <button id="laser-button" class="powerup-button" disabled>⚡</button>
+                        <button id="rocket-button" class="powerup-button" disabled>🚀</button>
+                    </div>
+                    <button id="fire-button"></button>
+                </div>
             </div>
         </div>
     </main>

@@ -21,6 +21,12 @@ let isTouching = false;
 let touchOffsetX, touchOffsetY;
 let playerIsDead = false;
 
+// Joystick State
+let joystickActive = false;
+let joystickBaseX = 0, joystickBaseY = 0;
+let joystickStickX = 0, joystickStickY = 0;
+let joystickMaxDistance = 0;
+
 // Power-up State
 let consecutiveHits = 0, homingRocketsReady = false, laserReady = false, laserIsActive = false;
 let shieldActive = false;
@@ -38,7 +44,10 @@ const isTouchDevice = () => 'ontouchstart' in window || navigator.maxTouchPoints
 function mainGameLoop() {
   if (paused || !gameRunning) { requestAnimationFrame(mainGameLoop); return; }
   if (!playerIsDead) {
-      if (!isTouching) {
+      // Use joystick input for mobile, keyboard input for desktop
+      if (isTouchDevice() && joystickActive) {
+          // Joystick movement is handled in joystick handlers
+      } else if (!isTouching) {
           let left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
           let bottom = parseInt(window.getComputedStyle(jet).getPropertyValue("bottom"));
           if (moveLeft && left > 0) jet.style.left = (left - jetSpeed) + "px";
@@ -61,12 +70,20 @@ mainGameLoop();
 
 function setupEventListeners() {
     if (isTouchDevice()) {
+        // Setup joystick
+        setupJoystick();
+        // Keep old touch controls as fallback (but joystick takes priority)
         board.addEventListener('touchstart', handleTouchStart, { passive: false });
         board.addEventListener('touchmove', handleTouchMove, { passive: false });
         board.addEventListener('touchend', handleTouchEnd, { passive: false });
+        // Button controls
         document.getElementById('fire-button').addEventListener('touchstart', (e) => { e.preventDefault(); if(canShoot) fireBullet(); });
         document.getElementById('rocket-button').addEventListener('touchstart', (e) => { e.preventDefault(); activateHomingRockets(); });
         document.getElementById('laser-button').addEventListener('touchstart', (e) => { e.preventDefault(); activateLaser(); });
+        const pauseButton = document.getElementById('pause-button');
+        if (pauseButton) {
+            pauseButton.addEventListener('touchstart', (e) => { e.preventDefault(); if (gameRunning) togglePause(); });
+        }
     } else {
         window.addEventListener("keydown", handleKeyDown);
         window.addEventListener("keyup", handleKeyUp);
@@ -95,6 +112,9 @@ function handleKeyUp(e) {
 }
 function handleTouchStart(e) {
     if (playerIsDead) return;
+    // Don't activate drag if touching joystick area
+    const joystickContainer = document.getElementById('joystick-container');
+    if (joystickContainer && joystickContainer.contains(e.target)) return;
     if (e.target === jet) {
         e.preventDefault(); isTouching = true;
         const touch = e.touches[0]; const jetRect = jet.getBoundingClientRect();
@@ -115,7 +135,122 @@ function handleTouchMove(e) {
     }
 }
 function handleTouchEnd(e) { e.preventDefault(); isTouching = false; }
-function togglePause(){paused=!paused,document.getElementById("pause-screen").style.display=paused?"flex":"none"}
+function togglePause(){
+    paused=!paused;
+    const pauseScreen = document.getElementById("pause-screen");
+    const pauseMessage = document.getElementById("pause-message");
+    pauseScreen.style.display = paused ? "flex" : "none";
+    if (pauseMessage) {
+        pauseMessage.textContent = isTouchDevice() ? "Tap ⏸ to Resume" : "Press 'P' to Resume";
+    }
+}
+
+// Joystick Functions
+function setupJoystick() {
+    const joystickContainer = document.getElementById('joystick-container');
+    const joystickStick = document.getElementById('joystick-stick');
+    
+    if (!joystickContainer || !joystickStick) return;
+    
+    const joystickBase = document.getElementById('joystick-base');
+    const baseRect = joystickBase.getBoundingClientRect();
+    joystickMaxDistance = baseRect.width * 0.35; // Max distance stick can move from center
+    
+    joystickContainer.addEventListener('touchstart', handleJoystickStart, { passive: false });
+    joystickContainer.addEventListener('touchmove', handleJoystickMove, { passive: false });
+    joystickContainer.addEventListener('touchend', handleJoystickEnd, { passive: false });
+    joystickContainer.addEventListener('touchcancel', handleJoystickEnd, { passive: false });
+}
+
+function handleJoystickStart(e) {
+    if (playerIsDead || !gameRunning || paused) return;
+    e.preventDefault();
+    e.stopPropagation(); // Prevent other touch handlers
+    joystickActive = true;
+    const joystickContainer = document.getElementById('joystick-container');
+    const joystickBase = document.getElementById('joystick-base');
+    joystickContainer.classList.add('active');
+    
+    const baseRect = joystickBase.getBoundingClientRect();
+    joystickBaseX = baseRect.left + baseRect.width / 2;
+    joystickBaseY = baseRect.top + baseRect.height / 2;
+    
+    const touch = e.touches[0];
+    updateJoystickPosition(touch.clientX, touch.clientY);
+}
+
+function handleJoystickMove(e) {
+    if (!joystickActive) return;
+    e.preventDefault();
+    e.stopPropagation(); // Prevent other touch handlers
+    const touch = e.touches[0];
+    if (touch) {
+        updateJoystickPosition(touch.clientX, touch.clientY);
+    }
+}
+
+function handleJoystickEnd(e) {
+    if (!joystickActive) return;
+    e.preventDefault();
+    e.stopPropagation(); // Prevent other touch handlers
+    joystickActive = false;
+    const joystickContainer = document.getElementById('joystick-container');
+    const joystickStick = document.getElementById('joystick-stick');
+    joystickContainer.classList.remove('active');
+    
+    // Reset joystick stick to center
+    joystickStick.style.transform = 'translate(-50%, -50%)';
+    
+    // Reset movement
+    moveLeft = moveRight = moveUp = moveDown = false;
+}
+
+function updateJoystickPosition(touchX, touchY) {
+    const joystickStick = document.getElementById('joystick-stick');
+    if (!joystickStick) return;
+    
+    // Calculate distance from center
+    const deltaX = touchX - joystickBaseX;
+    const deltaY = touchY - joystickBaseY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    
+    // Limit stick movement to max distance
+    let stickX = deltaX;
+    let stickY = deltaY;
+    if (distance > joystickMaxDistance) {
+        stickX = (deltaX / distance) * joystickMaxDistance;
+        stickY = (deltaY / distance) * joystickMaxDistance;
+    }
+    
+    // Update stick visual position
+    joystickStick.style.transform = `translate(calc(-50% + ${stickX}px), calc(-50% + ${stickY}px))`;
+    
+    // Calculate normalized direction (-1 to 1)
+    const normalizedX = stickX / joystickMaxDistance;
+    const normalizedY = stickY / joystickMaxDistance;
+    
+    // Update movement flags based on joystick position
+    const threshold = 0.3; // Dead zone threshold
+    moveLeft = normalizedX < -threshold;
+    moveRight = normalizedX > threshold;
+    moveUp = normalizedY < -threshold;
+    moveDown = normalizedY > threshold;
+    
+    // Apply movement to jet
+    if (!playerIsDead && gameRunning && !paused) {
+        let left = parseInt(window.getComputedStyle(jet).getPropertyValue("left"));
+        let bottom = parseInt(window.getComputedStyle(jet).getPropertyValue("bottom"));
+        
+        // Apply movement with intensity based on joystick distance
+        const intensity = Math.min(1, distance / joystickMaxDistance);
+        const speed = jetSpeed * intensity;
+        
+        if (moveLeft && left > 0) jet.style.left = (left - speed) + "px";
+        if (moveRight && left < (board.clientWidth - jet.clientWidth)) jet.style.left = (left + speed) + "px";
+        if (moveUp && bottom < (board.clientHeight - jet.clientHeight)) jet.style.bottom = (bottom + speed) + "px";
+        if (moveDown && bottom > 10) jet.style.bottom = (bottom - speed) + "px";
+    }
+}
 
 function fireBullet() {
     if (!canShoot) return;
@@ -447,6 +582,10 @@ function startGame(level, mode) {
     if (gameMode === 'endless') {
         document.getElementById('wave-display').style.display = 'block';
     }
+    // Show touch controls on mobile devices
+    if (isTouchDevice()) {
+        document.getElementById('touch-controls').style.display = 'flex';
+    }
     setupEventListeners();
     const jetSpeedSettings = { easy: 8, medium: 10, hard: 12 };
     const rockFallSpeedSettings = { easy: 2.5, medium: 4, hard: 6 };
@@ -483,7 +622,8 @@ function startRockSpawning(){
         const rand=Math.random();
         if(rand<.2){rock.classList.add("alien-2"),rock.dataset.health=2}
         else if(rand<.5){rock.classList.add("alien-3"),rock.dataset.speedModifier=1.3}
-        rock.style.left=Math.floor(Math.random()*(board.clientWidth-60))+"px",rock.style.top="-60px",board.appendChild(rock)
+        rock.style.left=Math.floor(Math.random()*(board.clientWidth-60))+"px",rock.style.top="-60px"
+        ,board.appendChild(rock)
     },rockSpawnRate);
 
     rockMoveInterval=setInterval(()=>{
