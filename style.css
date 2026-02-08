@@ -340,16 +340,18 @@ body::after {
 /* Weapon HUD */
 #weapon-hud {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: max(15px, env(safe-area-inset-top));
+    right: max(15px, env(safe-area-inset-right));
     font-size: 0.8rem;
     color: var(--neon-cyan);
     text-shadow: 0 0 10px currentColor;
     font-weight: bold;
-    padding: 3px 8px;
+    padding: 5px 10px;
     border: 1px solid currentColor;
     border-radius: 4px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 101;
 }
 
 .laser-beam {
@@ -826,11 +828,15 @@ body::after {
    ========================= */
 #game-header {
     position: absolute;
-    top: 15px;
-    left: 15px;
+    top: max(15px, env(safe-area-inset-top));
+    left: max(15px, env(safe-area-inset-left));
     display: flex;
     flex-direction: column;
     gap: 5px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 8px;
+    border-radius: 8px;
+    backdrop-filter: blur(2px);
 }
 
 #score,
@@ -1112,6 +1118,7 @@ body::after {
     left: 0;
     width: 100%;
     padding: 4vw;
+    padding-bottom: max(80px, env(safe-area-inset-bottom));
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
