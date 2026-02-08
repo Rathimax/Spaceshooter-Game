@@ -106,19 +106,135 @@ function playSound(soundId) {
  */
 function toggleSound() {
     soundEnabled = !soundEnabled;
-    localStorage.setItem('spaceShooterMuted', !soundEnabled);
-    updateMuteButtonUI();
+    localStorage.setItem('spaceShooterSound', soundEnabled);
+    updateSettingsUI();
+
+    if (soundEnabled) {
+        if (gameRunning) {
+            if (bossActive) playMusic('boss');
+            else playMusic('bgm');
+        }
+    } else {
+        stopMusic();
+    }
 }
 
 /**
- * Update mute button visual state
+ * Play background music with crossfade
+ * @param {string} type - 'bgm' or 'boss'
  */
-function updateMuteButtonUI() {
-    const muteBtn = document.getElementById('mute-button');
-    if (muteBtn) {
-        muteBtn.textContent = soundEnabled ? '🔊' : '🔇';
+function playMusic(type) {
+    if (!soundEnabled) return;
+
+    const bgm = document.getElementById('bgm-music');
+    const bossMusic = document.getElementById('boss-music');
+
+    if (type === 'bgm') {
+        bossMusic.pause();
+        bossMusic.currentTime = 0;
+        bgm.volume = 0.5;
+        bgm.play().catch(e => console.log("Audio play failed", e));
+    } else if (type === 'boss') {
+        bgm.pause();
+        bgm.currentTime = 0;
+        bossMusic.volume = 0.6;
+        bossMusic.play().catch(e => console.log("Audio play failed", e));
     }
 }
+
+/**
+ * Stop all music
+ */
+function stopMusic() {
+    const bgm = document.getElementById('bgm-music');
+    const bossMusic = document.getElementById('boss-music');
+
+    bgm.pause();
+    bgm.currentTime = 0;
+    bossMusic.pause();
+    bossMusic.currentTime = 0;
+}
+
+/**
+ * Update sound toggle visual state
+ */
+function updateSoundToggleUI() {
+    const soundToggle = document.getElementById('sound-toggle');
+    if (soundToggle) {
+        soundToggle.classList.toggle('active', soundEnabled);
+    }
+}
+
+// =========================
+// SETTINGS MENU
+// =========================
+let screenShakeEnabled = localStorage.getItem('spaceShooterShake') !== 'false';
+let showFps = localStorage.getItem('spaceShooterFps') === 'true';
+
+function openSettings() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('settings-screen').style.display = 'flex';
+    updateSettingsUI();
+}
+
+function closeSettings() {
+    document.getElementById('settings-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'flex';
+}
+
+function updateSettingsUI() {
+    document.getElementById('sound-toggle')?.classList.toggle('active', soundEnabled);
+    document.getElementById('shake-toggle')?.classList.toggle('active', screenShakeEnabled);
+    document.getElementById('fps-toggle')?.classList.toggle('active', showFps);
+}
+
+function toggleShake() {
+    screenShakeEnabled = !screenShakeEnabled;
+    localStorage.setItem('spaceShooterShake', screenShakeEnabled);
+    updateSettingsUI();
+}
+
+function toggleFps() {
+    showFps = !showFps;
+    localStorage.setItem('spaceShooterFps', showFps);
+    updateSettingsUI();
+}
+
+// =========================
+// TUTORIAL SYSTEM
+// =========================
+
+/**
+ * Check if this is a first-time player and show tutorial
+ */
+function checkFirstTimePlayer() {
+    const hasSeenTutorial = localStorage.getItem('spaceShooterTutorialSeen');
+    if (!hasSeenTutorial) {
+        document.getElementById('tutorial-overlay').style.display = 'flex';
+    }
+}
+
+/**
+ * Close the tutorial overlay
+ */
+function closeTutorial() {
+    const dontShowAgain = document.getElementById('dont-show-again').checked;
+    if (dontShowAgain) {
+        localStorage.setItem('spaceShooterTutorialSeen', 'true');
+    }
+    document.getElementById('tutorial-overlay').style.display = 'none';
+}
+
+/**
+ * Show tutorial manually (from settings)
+ */
+function showTutorial() {
+    document.getElementById('settings-screen').style.display = 'none';
+    document.getElementById('tutorial-overlay').style.display = 'flex';
+}
+
+// Show tutorial on page load for first-time players
+document.addEventListener('DOMContentLoaded', checkFirstTimePlayer);
 
 // =========================
 // HIGH SCORE SYSTEM
@@ -155,6 +271,162 @@ let gameRunning = false;
 let paused = false;
 let gameLevel = "medium";
 let gameMode = "classic";
+
+// =========================
+// COIN & SHOP SYSTEM
+// =========================
+let coins = parseInt(localStorage.getItem('spaceShooterCoins')) || 0;
+
+// Shop upgrades - stored in localStorage
+const UPGRADE_CONFIG = {
+    speed: {
+        name: 'Speed Boost',
+        description: '+10% movement speed',
+        baseCost: 100,
+        maxLevel: 3,
+        effect: 0.1 // 10% per level
+    },
+    damage: {
+        name: 'Power Shot',
+        description: '+1 base damage',
+        baseCost: 150,
+        maxLevel: 3,
+        effect: 1
+    },
+    lives: {
+        name: 'Extra Life',
+        description: '+1 starting life',
+        baseCost: 200,
+        maxLevel: 2,
+        effect: 1
+    },
+    missiles: {
+        name: 'Missile Capacity',
+        description: '+2 missile ammo',
+        baseCost: 100,
+        maxLevel: 3,
+        effect: 2
+    }
+};
+
+// Load upgrade levels from storage
+let upgradeLevels = JSON.parse(localStorage.getItem('spaceShooterUpgrades')) || {
+    speed: 0,
+    damage: 0,
+    lives: 0,
+    missiles: 0
+};
+
+/**
+ * Add coins (call when enemy is killed)
+ */
+function addCoins(amount) {
+    coins += amount;
+    localStorage.setItem('spaceShooterCoins', coins);
+    updateCoinDisplay();
+}
+
+/**
+ * Update coin display in shop
+ */
+function updateCoinDisplay() {
+    const coinDisplay = document.getElementById('coin-display');
+    if (coinDisplay) coinDisplay.textContent = coins;
+}
+
+/**
+ * Get upgrade cost (increases per level)
+ */
+function getUpgradeCost(upgradeKey) {
+    const config = UPGRADE_CONFIG[upgradeKey];
+    const level = upgradeLevels[upgradeKey];
+    return Math.floor(config.baseCost * Math.pow(1.5, level));
+}
+
+/**
+ * Purchase an upgrade
+ */
+function purchaseUpgrade(upgradeKey) {
+    const config = UPGRADE_CONFIG[upgradeKey];
+    const currentLevel = upgradeLevels[upgradeKey];
+    const cost = getUpgradeCost(upgradeKey);
+
+    if (currentLevel >= config.maxLevel) return false;
+    if (coins < cost) return false;
+
+    coins -= cost;
+    upgradeLevels[upgradeKey]++;
+
+    localStorage.setItem('spaceShooterCoins', coins);
+    localStorage.setItem('spaceShooterUpgrades', JSON.stringify(upgradeLevels));
+
+    updateShopUI();
+    playSound('shoot-sound');
+    return true;
+}
+
+/**
+ * Apply upgrades to game stats
+ */
+function applyUpgrades() {
+    // Speed upgrade
+    const speedBonus = 1 + (upgradeLevels.speed * UPGRADE_CONFIG.speed.effect);
+    jetSpeed = Math.floor(DIFFICULTY_SETTINGS[gameLevel].jetSpeed * speedBonus);
+
+    // Lives upgrade
+    lives = 3 + (upgradeLevels.lives * UPGRADE_CONFIG.lives.effect);
+
+    // Missile capacity upgrade
+    maxMissileAmmo = 5 + (upgradeLevels.missiles * UPGRADE_CONFIG.missiles.effect);
+    missileAmmo = maxMissileAmmo;
+}
+
+/**
+ * Open shop screen
+ */
+function openShop() {
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('shop-screen').style.display = 'flex';
+    updateShopUI();
+}
+
+/**
+ * Close shop screen
+ */
+function closeShop() {
+    document.getElementById('shop-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'flex';
+}
+
+/**
+ * Update shop UI with current values
+ */
+function updateShopUI() {
+    updateCoinDisplay();
+
+    Object.keys(UPGRADE_CONFIG).forEach(key => {
+        const config = UPGRADE_CONFIG[key];
+        const level = upgradeLevels[key];
+        const cost = getUpgradeCost(key);
+        const maxed = level >= config.maxLevel;
+
+        const btn = document.getElementById(`upgrade-${key}`);
+        if (btn) {
+            if (maxed) {
+                btn.textContent = 'MAX';
+                btn.disabled = true;
+                btn.classList.add('maxed');
+            } else {
+                btn.textContent = `${cost} 🪙`;
+                btn.disabled = coins < cost;
+                btn.classList.toggle('affordable', coins >= cost);
+            }
+        }
+
+        const levelEl = document.getElementById(`level-${key}`);
+        if (levelEl) levelEl.textContent = `Lv.${level}/${config.maxLevel}`;
+    });
+}
 
 // Interval references (for cleanup)
 let rockMoveInterval = null;
@@ -195,6 +467,44 @@ let joystickBaseY = 0;
 let joystickStickX = 0;
 let joystickStickY = 0;
 let joystickMaxDistance = 0;
+
+// =========================
+// WEAPON SYSTEM
+// =========================
+let currentWeapon = 'laser'; // 'laser', 'plasma', 'missile'
+let missileAmmo = 5;
+let maxMissileAmmo = 5;
+
+const WEAPON_CONFIG = {
+    laser: {
+        name: 'Laser',
+        cooldown: 200,
+        damage: 1,
+        speed: 15,
+        width: 6,
+        height: 20,
+        color: 'var(--neon-cyan)'
+    },
+    plasma: {
+        name: 'Plasma',
+        cooldown: 400,
+        damage: 2,
+        speed: 10,
+        width: 14,
+        height: 14,
+        color: 'var(--neon-green)'
+    },
+    missile: {
+        name: 'Missile',
+        cooldown: 600,
+        damage: 3,
+        speed: 8,
+        width: 10,
+        height: 25,
+        color: 'var(--neon-orange)',
+        homing: true
+    }
+};
 
 // =========================
 // POWER-UP STATE
@@ -260,6 +570,7 @@ function checkCollision(elem1, elem2) {
  * Trigger screen shake effect
  */
 function triggerScreenShake() {
+    if (!screenShakeEnabled) return;
     board.classList.add("shake");
     setTimeout(() => board.classList.remove("shake"), 200);
 }
@@ -310,11 +621,16 @@ function mainGameLoop() {
             let left = parseInt(jetStyle.getPropertyValue("left"));
             let bottom = parseInt(jetStyle.getPropertyValue("bottom"));
 
-            if (moveLeft && left > 0) {
-                jet.style.left = (left - jetSpeed) + "px";
+            // Account for translateX(-50%) by using half width as minimum left position
+            const halfJetWidth = jet.clientWidth / 2;
+            const minLeft = halfJetWidth;
+            const maxLeft = board.clientWidth - halfJetWidth;
+
+            if (moveLeft) {
+                jet.style.left = Math.max(minLeft, left - jetSpeed) + "px";
             }
-            if (moveRight && left < (board.clientWidth - jet.clientWidth)) {
-                jet.style.left = (left + jetSpeed) + "px";
+            if (moveRight) {
+                jet.style.left = Math.min(maxLeft, left + jetSpeed) + "px";
             }
             if (moveUp && bottom < (board.clientHeight - jet.clientHeight)) {
                 jet.style.bottom = (bottom + jetSpeed) + "px";
@@ -406,6 +722,19 @@ function handleKeyDown(e) {
         return;
     }
 
+    // R key to restart (works from game over, win, or pause screens)
+    if (key === "r") {
+        const gameOver = document.getElementById("game-over");
+        const winScreen = document.getElementById("win-screen");
+        const pauseScreen = document.getElementById("pause-screen");
+        if ((gameOver && gameOver.style.display !== "none") ||
+            (winScreen && winScreen.style.display !== "none") ||
+            (pauseScreen && pauseScreen.style.display !== "none")) {
+            restartGame();
+        }
+        return;
+    }
+
     if (playerIsDead) return;
 
     if (homingRocketsReady && key === 'q') {
@@ -414,6 +743,20 @@ function handleKeyDown(e) {
     }
     if (laserReady && key === 'e') {
         activateLaser();
+        return;
+    }
+
+    // Weapon switching with number keys (1, 2, 3)
+    if (key === '1') {
+        switchWeapon('laser');
+        return;
+    }
+    if (key === '2') {
+        switchWeapon('plasma');
+        return;
+    }
+    if (key === '3' && missileAmmo > 0) {
+        switchWeapon('missile');
         return;
     }
 
@@ -500,15 +843,41 @@ function handleTouchEnd(e) {
 function togglePause() {
     paused = !paused;
     const pauseScreen = document.getElementById("pause-screen");
-    const pauseMessage = document.getElementById("pause-message");
-
     pauseScreen.style.display = paused ? "flex" : "none";
+}
 
-    if (pauseMessage) {
-        pauseMessage.textContent = isTouchDevice()
-            ? "Tap ⏸ to Resume"
-            : "Press 'P' to Resume";
-    }
+/**
+ * Open settings from pause menu
+ */
+function openPauseSettings() {
+    document.getElementById("pause-screen").style.display = "none";
+    document.getElementById("settings-screen").style.display = "flex";
+    updateSettingsUI();
+}
+
+/**
+ * Quit current game and return to main menu
+ */
+function quitToMenu() {
+    // Stop current game
+    gameRunning = false;
+    paused = false;
+    playerIsDead = false;
+
+    // Clear all game elements
+    document.querySelectorAll(".bullets, .rocks, .boss-bullet, .homing-rocket, .powerup-drop").forEach(el => el.remove());
+
+    // Hide all screens and show start screen
+    document.getElementById("pause-screen").style.display = "none";
+    document.getElementById("game-over").style.display = "none";
+    document.getElementById("win-screen").style.display = "none";
+    document.getElementById("game-header").style.visibility = "hidden";
+    document.getElementById("start-screen").style.display = "flex";
+    document.getElementById("boss").style.display = "none";
+
+    // Reset jet position
+    jet.style.left = "50%";
+    jet.style.bottom = "12%";
 }
 
 // =========================
@@ -641,11 +1010,16 @@ function updateJoystickPosition(touchX, touchY) {
         const intensity = Math.min(1, distance / joystickMaxDistance);
         const speed = jetSpeed * intensity;
 
-        if (moveLeft && left > 0) {
-            jet.style.left = (left - speed) + "px";
+        // Account for translateX(-50%) by using half width as minimum left position
+        const halfJetWidth = jet.clientWidth / 2;
+        const minLeft = halfJetWidth;
+        const maxLeft = board.clientWidth - halfJetWidth;
+
+        if (moveLeft) {
+            jet.style.left = Math.max(minLeft, left - speed) + "px";
         }
-        if (moveRight && left < (board.clientWidth - jet.clientWidth)) {
-            jet.style.left = (left + speed) + "px";
+        if (moveRight) {
+            jet.style.left = Math.min(maxLeft, left + speed) + "px";
         }
         if (moveUp && bottom < (board.clientHeight - jet.clientHeight)) {
             jet.style.bottom = (bottom + speed) + "px";
@@ -661,14 +1035,54 @@ function updateJoystickPosition(touchX, touchY) {
 // =========================
 
 /**
+ * Switch to a different weapon
+ * @param {string} weapon - 'laser', 'plasma', or 'missile'
+ */
+function switchWeapon(weapon) {
+    if (weapon === 'missile' && missileAmmo <= 0) return;
+    currentWeapon = weapon;
+    updateWeaponHUD();
+    playSound("shoot-sound"); // Sound feedback
+}
+
+/**
+ * Update the weapon HUD display
+ */
+function updateWeaponHUD() {
+    const weaponHud = document.getElementById('weapon-hud');
+    if (!weaponHud) return;
+
+    const config = WEAPON_CONFIG[currentWeapon];
+    let display = `${config.name}`;
+    if (currentWeapon === 'missile') {
+        display += ` (${missileAmmo})`;
+    }
+    weaponHud.textContent = display;
+    weaponHud.style.color = config.color.startsWith('var(') ?
+        getComputedStyle(document.documentElement).getPropertyValue(config.color.slice(4, -1)) :
+        config.color;
+}
+
+/**
  * Fire a bullet (or spread shot if active)
  */
 function fireBullet() {
     if (!canShoot) return;
 
+    // Check missile ammo
+    if (currentWeapon === 'missile') {
+        if (missileAmmo <= 0) {
+            switchWeapon('laser');
+            return;
+        }
+        missileAmmo--;
+        updateWeaponHUD();
+    }
+
+    const config = WEAPON_CONFIG[currentWeapon];
     const cooldown = rapidFireActive
-        ? GAME_CONSTANTS.RAPID_FIRE_COOLDOWN
-        : GAME_CONSTANTS.BULLET_COOLDOWN;
+        ? Math.floor(config.cooldown / 2)
+        : config.cooldown;
 
     canShoot = false;
     setTimeout(() => { canShoot = true; }, cooldown);
@@ -690,26 +1104,35 @@ function fireBullet() {
  * @param {number} angle - Angle modifier for spread shots
  */
 function createSingleBullet(offsetX, angle) {
+    const config = WEAPON_CONFIG[currentWeapon];
     const bullet = document.createElement("div");
-    bullet.classList.add("bullets");
+    bullet.classList.add("bullets", `bullet-${currentWeapon}`);
+    bullet.dataset.damage = config.damage;
+    bullet.dataset.weapon = currentWeapon;
+
+    // Apply weapon-specific styling
+    bullet.style.width = config.width + 'px';
+    bullet.style.height = config.height + 'px';
+
     board.appendChild(bullet);
 
     const jetRect = jet.getBoundingClientRect();
     const boardRect = board.getBoundingClientRect();
 
-    let startX = jetRect.left - boardRect.left + jetRect.width / 2 - bullet.clientWidth / 2 + offsetX;
+    let startX = jetRect.left - boardRect.left + jetRect.width / 2 - config.width / 2 + offsetX;
     let startBottom = jet.clientHeight + (jetRect.bottom - boardRect.bottom) * -1;
 
     bullet.style.left = startX + "px";
     bullet.style.bottom = startBottom + "px";
 
+    const bulletSpeed = config.speed;
     const bulletInterval = setInterval(() => {
         if (paused) return;
 
         let currentBottom = parseInt(bullet.style.bottom);
         let currentLeft = parseInt(bullet.style.left);
-        let newBottom = currentBottom + GAME_CONSTANTS.BULLET_SPEED;
-        let newLeft = currentLeft + (GAME_CONSTANTS.BULLET_SPEED * angle);
+        let newBottom = currentBottom + bulletSpeed;
+        let newLeft = currentLeft + (bulletSpeed * angle);
 
         if (checkBulletCollision(bullet, bulletInterval)) return;
 
@@ -1031,7 +1454,12 @@ function destroyRock(rock) {
         createPowerupDrop(rockRect.left, rockRect.top);
     }
 
-    handleAlienDefeat();
+    // Determine tier for coins
+    let tier = 1;
+    if (rock.classList.contains("alien-2") || rock.classList.contains("alien-zigzag")) tier = 2;
+    if (rock.classList.contains("alien-3")) tier = 3;
+
+    handleAlienDefeat(tier);
     setTimeout(() => rock.remove(), 300);
 }
 
@@ -1051,8 +1479,12 @@ function destroyTarget(target, damage = 1) {
 /**
  * Handle alien defeat (score, progression)
  */
-function handleAlienDefeat() {
+function handleAlienDefeat(tier = 1) {
     score++;
+
+    // Add coins based on alien tier
+    addCoins(tier);
+
     document.getElementById("score-value").innerText = score;
     document.getElementById("points").innerText = score;
 
@@ -1131,6 +1563,9 @@ function initiateBossBattle() {
     // Stop rock spawning
     clearInterval(rockSpawnInterval);
     clearInterval(rockMoveInterval);
+
+    // Play boss music
+    playMusic('boss');
 
     // Clear existing rocks
     document.querySelectorAll('.rocks').forEach(rock => rock.remove());
@@ -1507,6 +1942,12 @@ function damageBoss(damage, knockback = false) {
         bossElement.classList.add("explode");
         playSound("explosion-sound");
 
+        // Boss defeat reward
+        addCoins(50);
+
+        // Switch back to normal music
+        playMusic('bgm');
+
         if (gameMode === 'endless') {
             setTimeout(startNextWave, 1000);
         } else {
@@ -1554,7 +1995,7 @@ function createPowerupDrop(left, top) {
     if (Math.random() < GAME_CONSTANTS.LIFE_UP_CHANCE) {
         type = 'life-up';
     } else {
-        const otherTypes = ['shield', 'rapid-fire', 'spread-shot'];
+        const otherTypes = ['shield', 'rapid-fire', 'spread-shot', 'missile-ammo'];
         type = otherTypes[Math.floor(Math.random() * otherTypes.length)];
     }
 
@@ -1566,7 +2007,8 @@ function createPowerupDrop(left, top) {
         shield: '🛡️',
         'rapid-fire': '🔥',
         'spread-shot': '✨',
-        'life-up': '❤️'
+        'life-up': '❤️',
+        'missile-ammo': '🚀'
     };
     powerup.innerHTML = emojis[type];
 
@@ -1620,6 +2062,19 @@ function activatePowerup(type) {
         case 'life-up':
             lives++;
             document.getElementById("lives-value").innerText = lives;
+            break;
+
+        case 'missile-ammo':
+            missileAmmo = Math.min(missileAmmo + 3, maxMissileAmmo);
+            updateWeaponHUD();
+            // Show floating text
+            const floatText = document.createElement('div');
+            floatText.className = 'floating-text';
+            floatText.textContent = '+3 Missiles';
+            floatText.style.left = jet.style.left;
+            floatText.style.bottom = jet.style.bottom;
+            board.appendChild(floatText);
+            setTimeout(() => floatText.remove(), 1000);
             break;
     }
 }
@@ -1708,6 +2163,15 @@ function startGame(level, mode) {
     rockFallSpeed = baseRockFallSpeed;
     rockSpawnRate = baseRockSpawnRate;
 
+    // Apply shop upgrades
+    applyUpgrades();
+
+    // Initialize hud
+    updateWeaponHUD();
+
+    // Start background music
+    playMusic('bgm');
+
     startRockSpawning();
 
     // Power-up movement interval
@@ -1742,17 +2206,32 @@ function startRockSpawning() {
         rock.classList.add("rocks");
 
         const rand = Math.random();
-        if (rand < 0.2) {
+
+        // Zigzag aliens: 30% chance in medium, 40% chance in hard
+        const zigzagChance = gameLevel === 'hard' ? 0.4 : (gameLevel === 'medium' ? 0.3 : 0);
+
+        if (rand < zigzagChance && gameLevel !== 'easy') {
+            // Zigzag alien - moves in sine wave pattern
+            rock.classList.add("alien-zigzag");
+            rock.dataset.zigzag = "true";
+            rock.dataset.zigzagOffset = Math.random() * Math.PI * 2; // Random starting phase
+            rock.dataset.zigzagSpeed = 0.05 + Math.random() * 0.03; // Variation in speed
+            rock.dataset.zigzagAmplitude = 40 + Math.random() * 30; // 40-70px amplitude
+            rock.dataset.originalLeft = Math.floor(Math.random() * (board.clientWidth - 120)) + 60;
+            rock.style.left = rock.dataset.originalLeft + "px";
+        } else if (rand < 0.2 + zigzagChance) {
             rock.classList.add("alien-2");
             rock.dataset.health = 2;
-        } else if (rand < 0.5) {
+            rock.style.left = Math.floor(Math.random() * (board.clientWidth - 60)) + "px";
+        } else if (rand < 0.5 + zigzagChance / 2) {
             rock.classList.add("alien-3");
             rock.dataset.speedModifier = 1.3;
+            rock.style.left = Math.floor(Math.random() * (board.clientWidth - 60)) + "px";
+        } else {
+            rock.style.left = Math.floor(Math.random() * (board.clientWidth - 60)) + "px";
         }
 
-        rock.style.left = Math.floor(Math.random() * (board.clientWidth - 60)) + "px";
         rock.style.top = "-60px";
-
         board.appendChild(rock);
     }, rockSpawnRate);
 
@@ -1771,6 +2250,22 @@ function startRockSpawning() {
             let top = parseInt(rockStyle.getPropertyValue("top"));
             const speedModifier = parseFloat(rock.dataset.speedModifier) || 1;
             const newTop = top + rockFallSpeed * speedModifier;
+
+            // Handle zigzag movement
+            if (rock.dataset.zigzag === "true") {
+                const originalLeft = parseFloat(rock.dataset.originalLeft);
+                const offset = parseFloat(rock.dataset.zigzagOffset) || 0;
+                const zigzagSpeed = parseFloat(rock.dataset.zigzagSpeed) || 0.05;
+                const amplitude = parseFloat(rock.dataset.zigzagAmplitude) || 50;
+
+                // Use top position as time variable for sine wave
+                const newOffset = offset + zigzagSpeed;
+                rock.dataset.zigzagOffset = newOffset;
+
+                const horizontalOffset = Math.sin(newOffset) * amplitude;
+                const newLeft = Math.max(0, Math.min(board.clientWidth - 60, originalLeft + horizontalOffset));
+                rock.style.left = newLeft + "px";
+            }
 
             if (newTop >= board.clientHeight) {
                 rock.remove();
@@ -1815,8 +2310,17 @@ function endGame(result) {
     if (highScoreEl) highScoreEl.textContent = highScore;
 
     // Play appropriate sound
-    if (result !== "win") {
+    if (result === "win") {
+        playSound("win-sound");
+    } else {
         playSound("gameover-sound");
+    }
+
+    // Stop music
+    stopMusic();
+
+    if (isNewHighScore) {
+        document.getElementById('new-high-score-msg').style.display = 'block';
     }
 
     // Show appropriate screen

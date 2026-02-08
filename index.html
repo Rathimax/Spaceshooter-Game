@@ -15,6 +15,36 @@
 </head>
 
 <body>
+    <!-- Tutorial Overlay (first-time players) -->
+    <div id="tutorial-overlay" style="display: none;">
+        <div class="tutorial-content">
+            <h2>Welcome, Pilot!</h2>
+            <div class="tutorial-section">
+                <h3>🎮 Controls</h3>
+                <div class="tutorial-controls">
+                    <div><span class="key">WASD</span> or <span class="key">Arrow Keys</span> Move</div>
+                    <div><span class="key">SPACE</span> Shoot</div>
+                    <div><span class="key">Q</span> Homing Rockets</div>
+                    <div><span class="key">E</span> Laser Beam</div>
+                    <div><span class="key">P</span> Pause</div>
+                    <div><span class="key">R</span> Restart</div>
+                </div>
+            </div>
+            <div class="tutorial-section">
+                <h3>💡 Tips</h3>
+                <ul>
+                    <li>Collect power-ups dropped by enemies</li>
+                    <li>Prepare for boss battles!</li>
+                    <li>Higher difficulty = more points</li>
+                </ul>
+            </div>
+            <button onclick="closeTutorial()">Got it!</button>
+            <label class="tutorial-checkbox">
+                <input type="checkbox" id="dont-show-again" checked>
+                Don't show this again
+            </label>
+        </div>
+    </div>
     <main id="game-container">
         <div id="board">
             <div id="jet">
@@ -28,6 +58,7 @@
                 <div id="lives">Lives: <span id="lives-value">3</span></div>
                 <div id="score">Score: <span id="score-value">0</span></div>
                 <div id="wave-display" style="display: none;">Wave: <span id="wave-value">1</span></div>
+                <div id="weapon-hud">Laser</div>
             </div>
             <div id="points">0</div>
             <div id="boss-health-container" style="display: none;">
@@ -39,8 +70,6 @@
             <!-- Container for Power-up Status Bars -->
             <div id="powerup-bars-container"></div>
 
-            <!-- Mute Button (always visible) -->
-            <button id="mute-button" class="mute-button" onclick="toggleSound()" title="Toggle Sound">🔊</button>
 
             <div class="screen" id="start-screen">
                 <h2>Space Shooter</h2>
@@ -64,6 +93,59 @@
                 <div id="mobile-instructions" style="display:none;">
                     <p>Use the joystick to move and buttons to shoot!</p>
                 </div>
+                <button class="settings-button" onclick="openSettings()">⚙ Settings</button>
+                <button class="shop-button" onclick="openShop()">🛒 Shop</button>
+            </div>
+            <!-- Shop Screen -->
+            <div class="screen" id="shop-screen" style="display: none;">
+                <h2>🛒 Ship Upgrades</h2>
+                <div class="shop-coins">🪙 <span id="coin-display">0</span></div>
+                <div class="shop-grid">
+                    <div class="shop-item">
+                        <div class="item-name">⚡ Speed Boost</div>
+                        <div class="item-desc">+10% movement speed</div>
+                        <div class="item-level" id="level-speed">Lv.0/3</div>
+                        <button id="upgrade-speed" onclick="purchaseUpgrade('speed')">100 🪙</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-name">💥 Power Shot</div>
+                        <div class="item-desc">+1 base damage</div>
+                        <div class="item-level" id="level-damage">Lv.0/3</div>
+                        <button id="upgrade-damage" onclick="purchaseUpgrade('damage')">150 🪙</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-name">❤️ Extra Life</div>
+                        <div class="item-desc">+1 starting life</div>
+                        <div class="item-level" id="level-lives">Lv.0/2</div>
+                        <button id="upgrade-lives" onclick="purchaseUpgrade('lives')">200 🪙</button>
+                    </div>
+                    <div class="shop-item">
+                        <div class="item-name">🚀 Missiles</div>
+                        <div class="item-desc">+2 missile ammo</div>
+                        <div class="item-level" id="level-missiles">Lv.0/3</div>
+                        <button id="upgrade-missiles" onclick="purchaseUpgrade('missiles')">100 🪙</button>
+                    </div>
+                </div>
+                <button class="back-button" onclick="closeShop()">Back</button>
+            </div>
+            <!-- Settings Screen -->
+            <div class="screen" id="settings-screen">
+                <h2>Settings</h2>
+                <div class="settings-grid">
+                    <div class="setting-row">
+                        <span class="setting-label">Sound</span>
+                        <button id="sound-toggle" class="setting-toggle active" onclick="toggleSound()"></button>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Screen Shake</span>
+                        <button id="shake-toggle" class="setting-toggle active" onclick="toggleShake()"></button>
+                    </div>
+                    <div class="setting-row">
+                        <span class="setting-label">Show FPS</span>
+                        <button id="fps-toggle" class="setting-toggle" onclick="toggleFps()"></button>
+                    </div>
+                </div>
+                <button class="back-button" onclick="closeSettings()">Back</button>
             </div>
             <div class="screen" id="game-over" style="display: none;">
                 <h2>Game Over</h2>
@@ -79,7 +161,13 @@
             </div>
             <div class="screen" id="pause-screen" style="display: none;">
                 <h2>Paused</h2>
-                <p id="pause-message">Press 'P' to Resume</p>
+                <div class="pause-menu-buttons">
+                    <button onclick="togglePause()">Resume</button>
+                    <button onclick="restartGame()">Restart</button>
+                    <button onclick="openPauseSettings()">Settings</button>
+                    <button onclick="quitToMenu()">Quit to Menu</button>
+                </div>
+                <p class="pause-hint">Press P to resume • R to restart</p>
             </div>
             <div id="desktop-abilities">
                 <div class="powerup" id="homing-rocket-powerup">
@@ -107,9 +195,14 @@
             </div>
         </div>
     </main>
-    <audio id="shoot-sound" src="shoot.wav" preload="auto"></audio>
-    <audio id="explosion-sound" src="explosion.wav" preload="auto"></audio>
-    <audio id="gameover-sound" src="gameover.wav" preload="auto"></audio>
+    <!-- Audio Elements -->
+    <audio id="shoot-sound" src="shoot.mp3"></audio>
+    <audio id="explosion-sound" src="explosion.mp3"></audio>
+    <audio id="bgm-music" src="music.mp3" loop></audio>
+    <audio id="boss-music" src="boss-music.mp3" loop></audio>
+    <audio id="powerup-sound" src="powerup.mp3"></audio>
+    <audio id="levelup-sound" src="levelup.mp3"></audio>
+    <audio id="gameover-sound" src="gameover.mp3"></audio>
     <audio id="laser-fire-sound" src="laser_fire.wav" preload="auto"></audio>
     <audio id="laser-charge-sound" src="laser_charge.wav" preload="auto"></audio>
     <audio id="rocket-launch-sound" src="rocket_launch.wav" preload="auto"></audio>
