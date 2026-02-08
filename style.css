@@ -1,190 +1,1185 @@
+/* ============================================================================
+   SPACESHOOTER GAME - Styles
+   ============================================================================ */
+
+/* =========================
+   CSS VARIABLES
+   ========================= */
 :root {
-    --primary-glow: #61dafb; --secondary-glow: #ff8eda; --danger-glow: #ff4747;
-    --powerup-glow: #a8ff78; --font-family: 'Orbitron', sans-serif;
-    --glass-bg: rgba(10, 20, 30, 0.5); --border-color: rgba(97, 218, 251, 0.7);
-  }
-  body {
-  margin: 0; padding: 0; background: #0c1a2e url("bHiPMju.png") repeat-y;
-  background-size: cover; overflow: hidden; font-family: var(--font-family);
-  color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh;
-  -webkit-user-select: none; user-select: none; touch-action: none;
-  animation: scroll-background 40s linear infinite;
-  }
-  #game-container { position: relative; width: 100vw; height: 100vh; }
-  #board { position: absolute; width: 100%; height: 100%; background-color: transparent; overflow: hidden; }
-  @media (min-width: 700px) and (min-height: 600px) {
-    #game-container { width: 95vw; height: 95vh; max-width: 700px; max-height: 800px; aspect-ratio: 7 / 8; }
-    #board {
-        border: 2px solid var(--border-color); background-color: var(--glass-bg);
-        border-radius: 15px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    --primary-glow: #61dafb;
+    --secondary-glow: #ff8eda;
+    --danger-glow: #ff4747;
+    --powerup-glow: #a8ff78;
+    --font-family: 'Orbitron', sans-serif;
+    --glass-bg: rgba(10, 20, 30, 0.5);
+    --border-color: rgba(97, 218, 251, 0.7);
+}
+
+/* =========================
+   BASE STYLES
+   ========================= */
+body {
+    margin: 0;
+    padding: 0;
+    background: #0c1a2e url("bHiPMju.png") repeat-y;
+    background-size: cover;
+    overflow: hidden;
+    font-family: var(--font-family);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+    animation: scroll-background 40s linear infinite;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+#board {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: transparent;
+    overflow: hidden;
+}
+
+/* Desktop layout with borders */
+@media (min-width: 700px) and (min-height: 600px) {
+    #game-container {
+        width: 95vw;
+        height: 95vh;
+        max-width: 700px;
+        max-height: 800px;
+        aspect-ratio: 7 / 8;
     }
-  }
-  #jet { z-index: 10; } .bullets { z-index: 5; } .rocks { z-index: 6; } .boss-bullet { z-index: 15; }
-  .homing-rocket { z-index: 8; } .laser-beam { z-index: 9; } #boss { z-index: 20; }
-  .particle { z-index: 7; } #ui-layer { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 100; }
-  #ui-layer > * { pointer-events: all; }
-  #jet {
-  position: absolute; left: 50%; bottom: 15%; transform: translateX(-50%);
-  width: clamp(50px, 12vw, 60px); height: clamp(50px, 10vw, 60px);
-  background: url("Rocket.png") no-repeat center; background-size: contain;
-  transition: transform 0.2s ease-out, filter 0.2s ease-out;
-  }
-  #jet-flare {
-    position: absolute; bottom: -15%; left: 50%;
-    transform: translateX(-50%); width: 60%; height: 60%;
-    background: radial-gradient(circle, rgba(255,232,153,0.8) 0%, rgba(255,107,0,0) 70%);
-    border-radius: 50%; animation: pulse-engine 0.5s infinite alternate;
-  }
-  .bullets{position:absolute;width:clamp(6px,1.2vw,8px);height:clamp(20px,4vh,25px);background-color:#f0fff0;border-radius:5px;box-shadow:0 0 5px #fff}
-  .rocks{position:absolute;width:clamp(50px,12vw,60px);height:clamp(50px,12vw,60px);background:url(alien.png) no-repeat center;background-size:contain}
-  .alien-2 { background-image: url(alien2.png) !important; }
-  .alien-3 { background-image: url(alien3.png) !important; }
-  .laser-beam{position:absolute;width:12px;height:100vh;background:linear-gradient(to top,rgba(168,255,120,0) 0%,#fff 70%,var(--powerup-glow) 100%);background-size:100% 200%;box-shadow:0 0 15px #fff,0 0 25px var(--powerup-glow);transform-origin:bottom center;animation:flow-energy 1s linear infinite}.homing-rocket{position:absolute;width:clamp(12px,2vw,15px);height:clamp(24px,4vh,30px);background-color:var(--powerup-glow);border:1px solid #fff;border-radius:10px 10px 2px 2px;box-shadow:0 0 10px var(--powerup-glow);transition:top .5s ease-in-out,left .5s ease-in-out,bottom .2s ease-out,transform .3s ease-out}#boss{position:absolute;width:clamp(120px,30vw,150px);height:clamp(100px,25vw,120px);background:url(boss.png) no-repeat center;background-size:contain;filter:drop-shadow(0 0 20px var(--danger-glow));top:-150px;transition:transform .1s ease-out}.boss-bullet{position:absolute;width:clamp(12px,3vw,15px);height:clamp(12px,3vw,15px);background-color:#ff5e3b;border:2px solid #fff200;border-radius:50%;box-shadow:0 0 15px #ff5e3b}
-  @keyframes scroll-background { from { background-position: 0 0; } to { background-position: 0 100%; } }
-  @keyframes pulse-engine { from { transform: translateX(-50%) scale(0.9); opacity: 0.8; } to { transform: translateX(-50%) scale(1.1); opacity: 1; } }
-  @keyframes explode { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-  .explode { background: url(explosion.png) no-repeat center !important; background-size: contain !important; animation: explode 0.3s ease-out forwards; }
-  @keyframes boss-hit { 0% { filter: drop-shadow(0 0 20px var(--danger-glow)) brightness(1); transform: scale(1); } 50% { filter: drop-shadow(0 0 35px white) brightness(4); transform: scale(1.05); } 100% { filter: drop-shadow(0 0 20px var(--danger-glow)) brightness(1); transform: scale(1); } }
-  .boss-hit-effect { animation: boss-hit 0.15s ease-in-out; }
-  @keyframes rock-hit { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.05); filter: brightness(2.5); } 100% { transform: scale(1); filter: brightness(1); } }
-  .rock-hit-effect { animation: rock-hit 0.1s ease-in-out; }
-  @keyframes flow-energy{from{background-position:0 0}to{background-position:0 -200%}}@keyframes screen-shake{0%,100%{transform:translate(0,0)}20%,80%{transform:translate(-2px,1px)}40%,60%{transform:translate(2px,-1px)}}.shake{animation:screen-shake .2s linear}.jet-charge{filter:drop-shadow(0 0 25px #fff) drop-shadow(0 0 15px var(--powerup-glow)) brightness(2)}.particle{position:absolute;background-color:var(--powerup-glow);border-radius:50%;animation:fly-out .5s ease-out forwards}@keyframes fly-out{from{transform:scale(1);opacity:1}to{transform:translate(var(--x),var(--y)) scale(0);opacity:0}}
-  #touch-controls{position:absolute;bottom:0;left:0;width:100%;padding:4vw;box-sizing:border-box;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:all;gap:10px;z-index:200}
-  .right-controls{display:flex;flex-direction:column;align-items:flex-end;gap:15px}
-  #fire-button{background:url(https://i.imgur.com/79b7YJ1.png) no-repeat center center;background-size:60%;background-color:rgba(255,71,71,.8);border:none;border-radius:50%;cursor:pointer;box-shadow:0 0 15px var(--danger-glow);transition:transform .1s ease;width:clamp(75px,20vw,90px);height:clamp(75px,20vw,90px);touch-action:none}#fire-button:active{transform:scale(.95)}
-  .mobile-pause-button{font-size:clamp(1.5rem,6vw,2rem);font-family:var(--font-family);font-weight:700;cursor:pointer;width:clamp(50px,12vw,60px);height:clamp(50px,12vw,60px);border-radius:50%;border:2px solid var(--primary-glow);color:var(--primary-glow);background-color:rgba(10,20,30,.7);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);transition:all .2s ease;display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(97,218,251,.3);touch-action:none}.mobile-pause-button:active{transform:scale(.9);box-shadow:0 0 20px var(--primary-glow)}
-  .powerup-touch-controls{display:flex;flex-direction:column;gap:15px}
-  .powerup-button{font-size:clamp(2rem,8vw,2.5rem);font-family:var(--font-family);font-weight:700;cursor:pointer;width:clamp(60px,15vw,70px);height:clamp(60px,15vw,70px);border-radius:50%;border:2px solid rgba(255,255,255,.2);color:rgba(255,255,255,.3);background-color:rgba(10,20,30,.5);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);transition:all .2s ease;padding-top:4px;box-sizing:border-box}.powerup-button:not(:disabled){border-color:var(--powerup-glow);color:var(--powerup-glow);text-shadow:0 0 10px var(--powerup-glow)}
-  /* Joystick Styles */
-  #joystick-container{position:relative;width:clamp(120px,30vw,140px);height:clamp(120px,30vw,140px);touch-action:none}
-  #joystick-base{position:absolute;width:100%;height:100%;border-radius:50%;background:rgba(10,20,30,.7);border:3px solid var(--primary-glow);box-shadow:0 0 20px rgba(97,218,251,.5),inset 0 0 20px rgba(97,218,251,.2);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
-  #joystick-stick{position:absolute;width:45%;height:45%;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(97,218,251,.9) 0%,rgba(97,218,251,.6) 100%);border:2px solid var(--primary-glow);box-shadow:0 0 15px var(--primary-glow),inset 0 0 10px rgba(255,255,255,.3);transition:transform .1s ease-out;pointer-events:none}
-  #joystick-container.active #joystick-stick{box-shadow:0 0 25px var(--primary-glow),inset 0 0 15px rgba(255,255,255,.5)}
-  @media (min-width:768px){#touch-controls{display:none!important}}@media (max-width:767px){#desktop-instructions,#desktop-abilities{display:none!important}}
-  #desktop-abilities{position:absolute;bottom:20px;left:20px;display:flex;flex-direction:column;gap:10px}.powerup{display:none;align-items:center;background-color:rgba(0,0,0,.5);border-radius:8px;padding:5px 10px;border:1px solid var(--powerup-glow)}.powerup.visible{display:flex}
-  .powerup-key{font-size:1.4em;font-weight:700;color:#000;background-color:var(--powerup-glow);padding:0 6px;border-radius:5px;margin-right:10px;line-height:1.4}
-  .powerup-status{font-size:1em;font-weight:700;color:var(--powerup-glow);text-transform:uppercase;white-space:nowrap;}.powerup.on-cooldown{border-color:#555}.powerup.on-cooldown .powerup-key{background-color:#555;color:#999}.powerup.on-cooldown .powerup-status{color:#999}
-  #boss-health-container{position:absolute;top:20px;left:50%;transform:translateX(-50%);width:clamp(250px,50%,500px);height:25px;border:2px solid var(--danger-glow);background-color:rgba(0,0,0,.5);border-radius:10px;padding:2px;box-sizing:border-box}#boss-health-bar{width:100%;height:100%;background:linear-gradient(90deg,#ff4747,#ff8a8a);border-radius:7px;transition:width .3s ease-in-out}
-  .screen{text-align:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:1001;width:90%;max-width:500px;padding:clamp(20px,5vh,40px);background:var(--glass-bg);border:2px solid var(--border-color);border-radius:20px;box-shadow:0 0 25px rgba(97,218,251,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;gap:clamp(15px,3vh,20px)}
-  #game-header {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-      box-sizing: border-box;
-  }
-  #score, #lives, #wave-display {
-      font-weight: 700;
-      font-size: clamp(1rem, 4vw, 1.5rem);
-  }
-  #start-screen #desktop-instructions{display:flex;flex-wrap:wrap;justify-content:center;gap:15px 25px;font-size:.9em;opacity:.8;margin-top:clamp(15px,3vh,20px)}
-  #desktop-instructions div{display:flex;align-items:center}#desktop-instructions span{color:var(--primary-glow);font-weight:700;margin-right:8px}.screen h2{margin:0;font-size:clamp(2.5rem,10vw,3.5rem)}.screen p{color:#ddd;margin:0;font-size:clamp(1rem,4vw,1.2rem)}.difficulty-buttons{display:flex;gap:15px}.screen button{padding:15px 35px;font-size:clamp(1rem,4vw,1.2rem);font-family:var(--font-family);cursor:pointer;border:2px solid var(--border-color);background-color:transparent;color:var(--primary-glow);border-radius:10px;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px}.screen button:hover{background-color:var(--primary-glow);color:#0c1a2e;transform:translateY(-3px)}#points{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(8em,25vw,12em);font-weight:700;color:#fff;opacity:.05;pointer-events:none;z-index:1}
-  @keyframes jet-fall-leaf {
-      0% { transform: translateX(-50%) rotate(5deg); opacity: 1; }
-      25% { transform: translateX(-60%) translateY(20vh) rotate(-5deg); }
-      50% { transform: translateX(-40%) translateY(45vh) rotate(5deg); }
-      75% { transform: translateX(-55%) translateY(70vh) rotate(-5deg); }
-      100% { transform: translateX(-50%) translateY(120vh) rotate(0deg) scale(0.5); opacity: 0; }
-  }
-  .jet-destroyed {
-      transition: none !important;
-      animation: jet-fall-leaf 2s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
-  }
-  @keyframes flash-warning {
-      0%, 49% { opacity: 1; }
-      50%, 100% { opacity: 0; }
-  }
-  #boss-alert {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 80%;
-      max-width: 800px;
-      height: 150px;
-      background-image: url('boss-alert.png');
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      z-index: 1000;
-      pointer-events: none;
-      animation: flash-warning 0.7s infinite;
-  }
-  .powerup-drop {
-      position: absolute;
-      width: clamp(35px, 8vw, 40px);
-      height: clamp(35px, 8vw, 40px);
-      z-index: 8;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      box-shadow: 0 0 15px #fff;
-  }
-  .shield-powerup { background-color: #61dafb; }
-  .rapid-fire-powerup { background-color: #ff8eda; }
-  .spread-shot-powerup { background-color: #a8ff78; }
-  .life-up-powerup { background-color: #ff4747; }
-  #shield-effect {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 150%;
-      height: 150%;
-      border-radius: 50%;
-      border: 3px solid var(--primary-glow);
-      box-shadow: 0 0 20px var(--primary-glow), inset 0 0 15px var(--primary-glow);
-      opacity: 0.8;
-      animation: pulse-shield 1.5s infinite alternate;
-  }
-  @keyframes pulse-shield {
-      from { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-      to { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
-  }
-  
-  /* --- NEW POWER-UP BAR STYLES --- */
-  #powerup-bars-container {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-  }
-  .powerup-bar {
-      background-color: rgba(10, 20, 30, 0.7);
-      border: 2px solid;
-      border-radius: 8px;
-      padding: 5px 10px;
-      width: 180px;
-      color: white;
-      font-weight: 700;
-      overflow: hidden;
-  }
-  .powerup-bar-name {
-      font-size: 0.9em;
-      margin-bottom: 5px;
-  }
-  .powerup-bar-timer {
-      width: 100%;
-      height: 6px;
-      background-color: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
-  }
-  .powerup-bar-progress {
-      width: 100%;
-      height: 100%;
-      border-radius: 3px;
-      background-color: white;
-      animation: deplete linear forwards;
-  }
-  @keyframes deplete {
-      from { width: 100%; }
-      to { width: 0%; }
-  }
+
+    #board {
+        border: 2px solid var(--border-color);
+        background-color: var(--glass-bg);
+        border-radius: 15px;
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+    }
+}
+
+/* =========================
+   Z-INDEX LAYERS
+   ========================= */
+#jet {
+    z-index: 10;
+}
+
+.bullets {
+    z-index: 5;
+}
+
+.rocks {
+    z-index: 6;
+}
+
+.boss-bullet {
+    z-index: 15;
+}
+
+.homing-rocket {
+    z-index: 8;
+}
+
+.laser-beam {
+    z-index: 9;
+}
+
+#boss {
+    z-index: 20;
+}
+
+.particle {
+    z-index: 7;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 100;
+}
+
+#ui-layer>* {
+    pointer-events: all;
+}
+
+/* =========================
+   PLAYER SHIP (JET)
+   ========================= */
+#jet {
+    position: absolute;
+    left: 50%;
+    bottom: 15%;
+    transform: translateX(-50%);
+    width: clamp(50px, 12vw, 60px);
+    height: clamp(50px, 10vw, 60px);
+    background: url("Rocket.png") no-repeat center;
+    background-size: contain;
+    transition: transform 0.2s ease-out, filter 0.2s ease-out;
+}
+
+#jet-flare {
+    position: absolute;
+    bottom: -15%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(255, 232, 153, 0.8) 0%, rgba(255, 107, 0, 0) 70%);
+    border-radius: 50%;
+    animation: pulse-engine 0.5s infinite alternate;
+}
+
+.jet-charge {
+    filter: drop-shadow(0 0 25px #fff) drop-shadow(0 0 15px var(--powerup-glow)) brightness(2);
+}
+
+.jet-destroyed {
+    transition: none !important;
+    animation: jet-fall-leaf 2s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+}
+
+/* =========================
+   BULLETS & PROJECTILES
+   ========================= */
+.bullets {
+    position: absolute;
+    width: clamp(6px, 1.2vw, 8px);
+    height: clamp(20px, 4vh, 25px);
+    background-color: #f0fff0;
+    border-radius: 5px;
+    box-shadow: 0 0 5px #fff;
+}
+
+.laser-beam {
+    position: absolute;
+    width: 12px;
+    height: 100vh;
+    background: linear-gradient(to top, rgba(168, 255, 120, 0) 0%, #fff 70%, var(--powerup-glow) 100%);
+    background-size: 100% 200%;
+    box-shadow: 0 0 15px #fff, 0 0 25px var(--powerup-glow);
+    transform-origin: bottom center;
+    animation: flow-energy 1s linear infinite;
+}
+
+.homing-rocket {
+    position: absolute;
+    width: clamp(12px, 2vw, 15px);
+    height: clamp(24px, 4vh, 30px);
+    background-color: var(--powerup-glow);
+    border: 1px solid #fff;
+    border-radius: 10px 10px 2px 2px;
+    box-shadow: 0 0 10px var(--powerup-glow);
+    transition: top 0.5s ease-in-out, left 0.5s ease-in-out, bottom 0.2s ease-out, transform 0.3s ease-out;
+}
+
+.boss-bullet {
+    position: absolute;
+    width: clamp(12px, 3vw, 15px);
+    height: clamp(12px, 3vw, 15px);
+    background-color: #ff5e3b;
+    border: 2px solid #fff200;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #ff5e3b;
+}
+
+/* =========================
+   ENEMIES (ROCKS/ALIENS)
+   ========================= */
+.rocks {
+    position: absolute;
+    width: clamp(50px, 12vw, 60px);
+    height: clamp(50px, 12vw, 60px);
+    background: url(alien.png) no-repeat center;
+    background-size: contain;
+}
+
+.alien-2 {
+    background-image: url(alien2.png) !important;
+}
+
+.alien-3 {
+    background-image: url(alien3.png) !important;
+}
+
+.rock-hit-effect {
+    animation: rock-hit 0.1s ease-in-out;
+}
+
+/* =========================
+   BOSS
+   ========================= */
+#boss {
+    position: absolute;
+    width: clamp(120px, 30vw, 150px);
+    height: clamp(100px, 25vw, 120px);
+    background: url(boss.png) no-repeat center;
+    background-size: contain;
+    filter: drop-shadow(0 0 20px var(--danger-glow));
+    top: -150px;
+    transition: transform 0.1s ease-out;
+}
+
+.boss-hit-effect {
+    animation: boss-hit 0.15s ease-in-out;
+}
+
+#boss-health-container {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(250px, 50%, 500px);
+    height: 25px;
+    border: 2px solid var(--danger-glow);
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    padding: 2px;
+    box-sizing: border-box;
+}
+
+#boss-health-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff4747, #ff8a8a);
+    border-radius: 7px;
+    transition: width 0.3s ease-in-out;
+}
+
+#boss-alert {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    height: 150px;
+    background-image: url('boss-alert.png');
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1000;
+    pointer-events: none;
+    animation: flash-warning 0.7s infinite;
+}
+
+/* =========================
+   BOSS SPECIAL ABILITIES
+   ========================= */
+
+/* Speed Boost Effect */
+.boss-speed-boost {
+    filter: drop-shadow(0 0 30px #ff0000) drop-shadow(0 0 60px #ff4444) brightness(1.5) !important;
+    animation: boss-rage 0.2s ease-in-out infinite;
+}
+
+@keyframes boss-rage {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Attack Warning Text */
+.boss-attack-warning {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 700;
+    color: #ff4747;
+    text-shadow: 0 0 20px #ff0000, 0 0 40px #ff4444;
+    z-index: 500;
+    animation: warning-pulse 0.3s ease-in-out infinite;
+    white-space: nowrap;
+}
+
+@keyframes warning-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: translateX(-50%) scale(1.1);
+    }
+}
+
+/* Beam Warning Overlay */
+.boss-beam-warning {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1000;
+    background: rgba(255, 0, 0, 0.2);
+    border: 3px solid var(--danger-glow);
+    border-radius: 20px;
+    padding: 30px 50px;
+    animation: warning-flash 0.5s ease-in-out infinite;
+}
+
+.boss-beam-warning-text {
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 10px #ff0000;
+    margin-bottom: 20px;
+}
+
+.boss-beam-countdown {
+    font-size: clamp(4rem, 15vw, 6rem);
+    font-weight: 700;
+    color: #ff4747;
+    text-shadow: 0 0 30px #ff0000, 0 0 60px #ff4444;
+    animation: countdown-pulse 1s ease-in-out infinite;
+}
+
+@keyframes countdown-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+@keyframes warning-flash {
+
+    0%,
+    100% {
+        background: rgba(255, 0, 0, 0.2);
+        border-color: var(--danger-glow);
+    }
+
+    50% {
+        background: rgba(255, 0, 0, 0.4);
+        border-color: #fff;
+    }
+}
+
+/* Beam Preview Line (during warning) */
+.boss-beam-preview {
+    position: absolute;
+    width: 20px;
+    height: 100vh;
+    background: linear-gradient(to bottom, rgba(255, 71, 71, 0.8), transparent);
+    opacity: 0.5;
+    z-index: 100;
+    animation: preview-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes preview-pulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        width: 20px;
+    }
+
+    50% {
+        opacity: 0.7;
+        width: 30px;
+    }
+}
+
+/* Actual Boss Beam */
+.boss-beam {
+    position: absolute;
+    width: 50px;
+    height: 100vh;
+    background: linear-gradient(to bottom,
+            #fff 0%,
+            #ff4747 10%,
+            #ff8a8a 50%,
+            #ff4747 90%,
+            rgba(255, 71, 71, 0) 100%);
+    box-shadow:
+        0 0 30px #ff4747,
+        0 0 60px #ff4747,
+        0 0 100px rgba(255, 71, 71, 0.5);
+    z-index: 150;
+    animation: beam-active 0.1s ease-in-out infinite;
+}
+
+@keyframes beam-active {
+
+    0%,
+    100% {
+        opacity: 0.9;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.boss-beam-fade {
+    animation: beam-fade 0.3s ease-out forwards;
+}
+
+@keyframes beam-fade {
+    from {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+}
+
+/* =========================
+   PARTICLES & EFFECTS
+   ========================= */
+.particle {
+    position: absolute;
+    background-color: var(--powerup-glow);
+    border-radius: 50%;
+    animation: fly-out 0.5s ease-out forwards;
+}
+
+.explode {
+    background: url(explosion.png) no-repeat center !important;
+    background-size: contain !important;
+    animation: explode 0.3s ease-out forwards;
+}
+
+.shake {
+    animation: screen-shake 0.2s linear;
+}
+
+/* =========================
+   SHIELD EFFECT
+   ========================= */
+#shield-effect {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150%;
+    height: 150%;
+    border-radius: 50%;
+    border: 3px solid var(--primary-glow);
+    box-shadow: 0 0 20px var(--primary-glow), inset 0 0 15px var(--primary-glow);
+    opacity: 0.8;
+    animation: pulse-shield 1.5s infinite alternate;
+}
+
+/* =========================
+   POWER-UP DROPS
+   ========================= */
+.powerup-drop {
+    position: absolute;
+    width: clamp(35px, 8vw, 40px);
+    height: clamp(35px, 8vw, 40px);
+    z-index: 8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 0 15px #fff;
+    animation: powerup-float 1s ease-in-out infinite alternate;
+}
+
+.shield-powerup {
+    background-color: #61dafb;
+}
+
+.rapid-fire-powerup {
+    background-color: #ff8eda;
+}
+
+.spread-shot-powerup {
+    background-color: #a8ff78;
+}
+
+.life-up-powerup {
+    background-color: #ff4747;
+}
+
+/* =========================
+   POWER-UP STATUS BARS
+   ========================= */
+#powerup-bars-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.powerup-bar {
+    background-color: rgba(10, 20, 30, 0.7);
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 5px 10px;
+    width: 180px;
+    color: white;
+    font-weight: 700;
+    overflow: hidden;
+    animation: bar-slide-in 0.3s ease-out;
+}
+
+.powerup-bar-name {
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.powerup-bar-timer {
+    width: 100%;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.powerup-bar-progress {
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    background-color: white;
+}
+
+/* =========================
+   GAME HEADER (STATS)
+   ========================= */
+#game-header {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    box-sizing: border-box;
+}
+
+#score,
+#lives,
+#wave-display {
+    font-weight: 700;
+    font-size: clamp(1rem, 4vw, 1.5rem);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#points {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(8em, 25vw, 12em);
+    font-weight: 700;
+    color: #fff;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* =========================
+   MUTE BUTTON
+   ========================= */
+.mute-button {
+    position: absolute;
+    top: 20px;
+    right: 220px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-glow);
+    background-color: rgba(10, 20, 30, 0.7);
+    color: var(--primary-glow);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+
+.mute-button:hover {
+    background-color: var(--primary-glow);
+    color: #0c1a2e;
+    transform: scale(1.1);
+}
+
+.mute-button:active {
+    transform: scale(0.95);
+}
+
+/* Mobile position adjustment */
+@media (max-width: 767px) {
+    .mute-button {
+        top: auto;
+        bottom: 20px;
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+}
+
+/* =========================
+   SCREENS (START, PAUSE, END)
+   ========================= */
+.screen {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+    width: 90%;
+    max-width: 500px;
+    padding: clamp(20px, 5vh, 40px);
+    background: var(--glass-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(97, 218, 251, 0.5);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(15px, 3vh, 20px);
+}
+
+.screen h2 {
+    margin: 0;
+    font-size: clamp(2.5rem, 10vw, 3.5rem);
+    text-shadow: 0 0 20px var(--primary-glow);
+}
+
+.screen p {
+    color: #ddd;
+    margin: 0;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+}
+
+.high-score-text {
+    color: var(--powerup-glow) !important;
+    font-weight: 700;
+}
+
+.difficulty-buttons {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.screen button {
+    padding: 15px 35px;
+    font-size: clamp(1rem, 4vw, 1.2rem);
+    font-family: var(--font-family);
+    cursor: pointer;
+    border: 2px solid var(--border-color);
+    background-color: transparent;
+    color: var(--primary-glow);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.screen button:hover {
+    background-color: var(--primary-glow);
+    color: #0c1a2e;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(97, 218, 251, 0.5);
+}
+
+/* =========================
+   DESKTOP INSTRUCTIONS
+   ========================= */
+#start-screen #desktop-instructions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px 25px;
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-top: clamp(15px, 3vh, 20px);
+}
+
+#desktop-instructions div {
+    display: flex;
+    align-items: center;
+}
+
+#desktop-instructions span {
+    color: var(--primary-glow);
+    font-weight: 700;
+    margin-right: 8px;
+}
+
+/* =========================
+   DESKTOP ABILITIES UI
+   ========================= */
+#desktop-abilities {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.powerup {
+    display: none;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    padding: 5px 10px;
+    border: 1px solid var(--powerup-glow);
+}
+
+.powerup.visible {
+    display: flex;
+}
+
+.powerup-key {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #000;
+    background-color: var(--powerup-glow);
+    padding: 0 6px;
+    border-radius: 5px;
+    margin-right: 10px;
+    line-height: 1.4;
+}
+
+.powerup-status {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--powerup-glow);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.powerup.on-cooldown {
+    border-color: #555;
+}
+
+.powerup.on-cooldown .powerup-key {
+    background-color: #555;
+    color: #999;
+}
+
+.powerup.on-cooldown .powerup-status {
+    color: #999;
+}
+
+/* =========================
+   TOUCH CONTROLS (MOBILE)
+   ========================= */
+#touch-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 4vw;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: all;
+    gap: 10px;
+    z-index: 200;
+}
+
+.right-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+}
+
+#fire-button {
+    background: url(https://i.imgur.com/79b7YJ1.png) no-repeat center center;
+    background-size: 60%;
+    background-color: rgba(255, 71, 71, 0.8);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 15px var(--danger-glow);
+    transition: transform 0.1s ease;
+    width: clamp(75px, 20vw, 90px);
+    height: clamp(75px, 20vw, 90px);
+    touch-action: none;
+}
+
+#fire-button:active {
+    transform: scale(0.95);
+}
+
+.mobile-pause-button {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    font-family: var(--font-family);
+    font-weight: 700;
+    cursor: pointer;
+    width: clamp(50px, 12vw, 60px);
+    height: clamp(50px, 12vw, 60px);
+    border-radius: 50%;
+    border: 2px solid var(--primary-glow);
+    color: var(--primary-glow);
+    background-color: rgba(10, 20, 30, 0.7);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(97, 218, 251, 0.3);
+    touch-action: none;
+}
+
+.mobile-pause-button:active {
+    transform: scale(0.9);
+    box-shadow: 0 0 20px var(--primary-glow);
+}
+
+.powerup-touch-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.powerup-button {
+    font-size: clamp(2rem, 8vw, 2.5rem);
+    font-family: var(--font-family);
+    font-weight: 700;
+    cursor: pointer;
+    width: clamp(60px, 15vw, 70px);
+    height: clamp(60px, 15vw, 70px);
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(10, 20, 30, 0.5);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+    transition: all 0.2s ease;
+    padding-top: 4px;
+    box-sizing: border-box;
+}
+
+.powerup-button:not(:disabled) {
+    border-color: var(--powerup-glow);
+    color: var(--powerup-glow);
+    text-shadow: 0 0 10px var(--powerup-glow);
+    animation: pulse-ready 1s ease-in-out infinite;
+}
+
+/* =========================
+   JOYSTICK
+   ========================= */
+#joystick-container {
+    position: relative;
+    width: clamp(120px, 30vw, 140px);
+    height: clamp(120px, 30vw, 140px);
+    touch-action: none;
+}
+
+#joystick-base {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(10, 20, 30, 0.7);
+    border: 3px solid var(--primary-glow);
+    box-shadow: 0 0 20px rgba(97, 218, 251, 0.5), inset 0 0 20px rgba(97, 218, 251, 0.2);
+    -webkit-backdrop-filter: blur(5px);
+    backdrop-filter: blur(5px);
+}
+
+#joystick-stick {
+    position: absolute;
+    width: 45%;
+    height: 45%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(97, 218, 251, 0.9) 0%, rgba(97, 218, 251, 0.6) 100%);
+    border: 2px solid var(--primary-glow);
+    box-shadow: 0 0 15px var(--primary-glow), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    transition: transform 0.1s ease-out;
+    pointer-events: none;
+}
+
+#joystick-container.active #joystick-stick {
+    box-shadow: 0 0 25px var(--primary-glow), inset 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+/* =========================
+   ANIMATIONS
+   ========================= */
+@keyframes scroll-background {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 100%;
+    }
+}
+
+@keyframes pulse-engine {
+    from {
+        transform: translateX(-50%) scale(0.9);
+        opacity: 0.8;
+    }
+
+    to {
+        transform: translateX(-50%) scale(1.1);
+        opacity: 1;
+    }
+}
+
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+@keyframes boss-hit {
+    0% {
+        filter: drop-shadow(0 0 20px var(--danger-glow)) brightness(1);
+        transform: scale(1);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 35px white) brightness(4);
+        transform: scale(1.05);
+    }
+
+    100% {
+        filter: drop-shadow(0 0 20px var(--danger-glow)) brightness(1);
+        transform: scale(1);
+    }
+}
+
+@keyframes rock-hit {
+    0% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+        filter: brightness(2.5);
+    }
+
+    100% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+}
+
+@keyframes flow-energy {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 -200%;
+    }
+}
+
+@keyframes screen-shake {
+
+    0%,
+    100% {
+        transform: translate(0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate(-2px, 1px);
+    }
+
+    40%,
+    60% {
+        transform: translate(2px, -1px);
+    }
+}
+
+@keyframes fly-out {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: translate(var(--x), var(--y)) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes jet-fall-leaf {
+    0% {
+        transform: translateX(-50%) rotate(5deg);
+        opacity: 1;
+    }
+
+    25% {
+        transform: translateX(-60%) translateY(20vh) rotate(-5deg);
+    }
+
+    50% {
+        transform: translateX(-40%) translateY(45vh) rotate(5deg);
+    }
+
+    75% {
+        transform: translateX(-55%) translateY(70vh) rotate(-5deg);
+    }
+
+    100% {
+        transform: translateX(-50%) translateY(120vh) rotate(0deg) scale(0.5);
+        opacity: 0;
+    }
+}
+
+@keyframes flash-warning {
+
+    0%,
+    49% {
+        opacity: 1;
+    }
+
+    50%,
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes pulse-shield {
+    from {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+}
+
+@keyframes deplete {
+    from {
+        width: 100%;
+    }
+
+    to {
+        width: 0%;
+    }
+}
+
+@keyframes bar-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes powerup-float {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pulse-ready {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px var(--powerup-glow);
+    }
+
+    50% {
+        box-shadow: 0 0 25px var(--powerup-glow);
+    }
+}
+
+/* =========================
+   RESPONSIVE / MEDIA QUERIES
+   ========================= */
+
+/* Hide touch controls on desktop */
+@media (min-width: 768px) {
+    #touch-controls {
+        display: none !important;
+    }
+}
+
+/* Hide desktop elements on mobile */
+@media (max-width: 767px) {
+
+    #desktop-instructions,
+    #desktop-abilities {
+        display: none !important;
+    }
+
+    #powerup-bars-container {
+        right: 10px;
+        top: 60px;
+    }
+
+    .powerup-bar {
+        width: 140px;
+        padding: 4px 8px;
+    }
+
+    .powerup-bar-name {
+        font-size: 0.8em;
+    }
+}

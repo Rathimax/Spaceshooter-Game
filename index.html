@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Space Shooter</title>
+    <meta name="description"
+        content="An exciting space shooter game with boss battles, power-ups, and endless mode. Use keyboard or touch controls to defeat alien invaders!">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
     <script src="app.js" defer></script>
 </head>
+
 <body>
     <main id="game-container">
         <div id="board">
@@ -29,14 +33,18 @@
             <div id="boss-health-container" style="display: none;">
                 <div id="boss-health-bar"></div>
             </div>
-            
+
             <div id="boss-alert" style="display: none;"></div>
 
-            <!-- New Container for Power-up Status Bars -->
+            <!-- Container for Power-up Status Bars -->
             <div id="powerup-bars-container"></div>
+
+            <!-- Mute Button (always visible) -->
+            <button id="mute-button" class="mute-button" onclick="toggleSound()" title="Toggle Sound">🔊</button>
 
             <div class="screen" id="start-screen">
                 <h2>Space Shooter</h2>
+                <p id="high-score-start" class="high-score-text">High Score: 0</p>
                 <p>Select Difficulty (Classic Mode)</p>
                 <div class="difficulty-buttons">
                     <button onclick="startGame('easy', 'classic')">Easy</button>
@@ -44,7 +52,7 @@
                     <button onclick="startGame('hard', 'classic')">Hard</button>
                 </div>
                 <p style="margin-top: 25px;">Or Try Endless Mode</p>
-                 <div class="difficulty-buttons">
+                <div class="difficulty-buttons">
                     <button onclick="startGame('medium', 'endless')">Endless</button>
                 </div>
                 <div id="desktop-instructions">
@@ -57,12 +65,31 @@
                     <p>Use the joystick to move and buttons to shoot!</p>
                 </div>
             </div>
-            <div class="screen" id="game-over" style="display: none;"><h2>Game Over</h2><button onclick="restartGame()">Restart</button></div>
-            <div class="screen" id="win-screen" style="display: none;"><h2>You Win!</h2><p>You have defeated the boss.</p><button onclick="restartGame()">Play Again</button></div>
-            <div class="screen" id="pause-screen" style="display: none;"><h2>Paused</h2><p id="pause-message">Press 'P' to Resume</p></div>
-            <div id="desktop-abilities" style="display: none;">
-                <div class="powerup" id="homing-rocket-powerup"><div class="powerup-key">🚀</div><div class="powerup-status">ROCKETS (Q)</div></div>
-                <div class="powerup" id="laser-beam-powerup"><div class="powerup-key">⚡</div><div class="powerup-status">LASER (E)</div></div>
+            <div class="screen" id="game-over" style="display: none;">
+                <h2>Game Over</h2>
+                <p>Final Score: <span id="final-score">0</span></p>
+                <p class="high-score-text">High Score: <span id="high-score-display">0</span></p>
+                <button onclick="restartGame()">Restart</button>
+            </div>
+            <div class="screen" id="win-screen" style="display: none;">
+                <h2>You Win!</h2>
+                <p>You have defeated the boss.</p>
+                <p>Final Score: <span id="final-score-win">0</span></p>
+                <button onclick="restartGame()">Play Again</button>
+            </div>
+            <div class="screen" id="pause-screen" style="display: none;">
+                <h2>Paused</h2>
+                <p id="pause-message">Press 'P' to Resume</p>
+            </div>
+            <div id="desktop-abilities">
+                <div class="powerup" id="homing-rocket-powerup">
+                    <div class="powerup-key">🚀</div>
+                    <div class="powerup-status">ROCKETS (Q)</div>
+                </div>
+                <div class="powerup" id="laser-beam-powerup">
+                    <div class="powerup-key">⚡</div>
+                    <div class="powerup-status">LASER (E)</div>
+                </div>
             </div>
             <div id="touch-controls" style="display: none;">
                 <div id="joystick-container">
@@ -80,13 +107,14 @@
             </div>
         </div>
     </main>
-    <audio id="shoot-sound" src="shoot.wav"></audio>
-    <audio id="explosion-sound" src="explosion.wav"></audio>
-    <audio id="gameover-sound" src="gameover.wav"></audio>
-    <audio id="laser-fire-sound" src="laser_fire.wav"></audio>
-    <audio id="laser-charge-sound" src="laser_charge.wav"></audio>
-    <audio id="rocket-launch-sound" src="rocket_launch.wav"></audio>
-    <audio id="powerup-collect-sound" src="powerup.wav"></audio>
-    <audio id="shield-break-sound" src="shield_break.wav"></audio>
+    <audio id="shoot-sound" src="shoot.wav" preload="auto"></audio>
+    <audio id="explosion-sound" src="explosion.wav" preload="auto"></audio>
+    <audio id="gameover-sound" src="gameover.wav" preload="auto"></audio>
+    <audio id="laser-fire-sound" src="laser_fire.wav" preload="auto"></audio>
+    <audio id="laser-charge-sound" src="laser_charge.wav" preload="auto"></audio>
+    <audio id="rocket-launch-sound" src="rocket_launch.wav" preload="auto"></audio>
+    <audio id="powerup-collect-sound" src="powerup.wav" preload="auto"></audio>
+    <audio id="shield-break-sound" src="shield_break.wav" preload="auto"></audio>
 </body>
+
 </html>
