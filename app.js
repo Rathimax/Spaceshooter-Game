@@ -2139,6 +2139,7 @@ function startGame(level, mode) {
     // Hide start screen, show game header
     document.getElementById("start-screen").style.display = "none";
     document.getElementById('game-header').style.visibility = 'visible';
+    document.getElementById('weapon-hud').style.visibility = 'visible';
 
     // Show wave display for endless mode
     if (gameMode === 'endless') {
@@ -2318,6 +2319,10 @@ function endGame(result) {
 
     // Stop music
     stopMusic();
+
+    // Hide game UI
+    document.getElementById('game-header').style.visibility = 'hidden';
+    document.getElementById('weapon-hud').style.visibility = 'hidden';
 
     if (isNewHighScore) {
         document.getElementById('new-high-score-msg').style.display = 'block';

@@ -340,7 +340,8 @@ body::after {
 /* Weapon HUD */
 #weapon-hud {
     position: absolute;
-    right: 10px;
+    top: 15px;
+    right: 15px;
     font-size: 0.8rem;
     color: var(--neon-cyan);
     text-shadow: 0 0 10px currentColor;
